@@ -1,45 +1,56 @@
-# ⚽ Football Performance Prediction + Gemini AI
+# Football Analytics and Same-Season Estimation
 
-## 📌 Description du projet
-Cette application est un projet **BI & Intelligence Artificielle** qui combine :
-- **Machine Learning (RandomForest)** pour prédire les performances des joueurs
-- **IA générative (Google Gemini)** pour fournir une analyse experte et contextuelle
-- **Streamlit** pour une interface web interactive
+Academic Python project combining a Streamlit dashboard, Random Forest regression
+and optional Gemini commentary for Premier League 2023/2024 player statistics.
 
-Le projet est basé sur les données de la **Premier League 2023/2024**.
+## What the model estimates
 
----
+The model estimates the observed goals or assists of held-out players using other
+statistics from the **same season**. It does not predict next season or future matches.
+Inputs include playing time, age, position and expected-goal statistics. Outcomes
+and their per-90 derivatives (`Gls_90`, `Ast_90`) are excluded from predictors.
 
-## 🎯 Objectifs
-- Analyser les performances individuelles des joueurs
-- Prédire :
-  - le nombre de buts (**Gls**)
-  - le nombre de passes décisives (**Ast**)
-- Générer une analyse qualitative via **Gemini AI**
-- Fournir une application exploitable dans un contexte **BI / Data Science**
+Players are grouped for an 80/20 split so a transferred player cannot appear in
+both training and evaluation sets. Imputation and encoding are fitted only on
+training players. The evaluation screen reports held-out MAE, R² and mean-baseline
+MAE; it does not claim a measured score until training has actually run.
 
----
+## Run locally
 
-## 🧠 Technologies utilisées
+Use Python 3.11+:
 
-| Catégorie | Technologies |
-|---------|-------------|
-| Frontend | Streamlit |
-| Data | Pandas |
-| Visualisation | Plotly |
-| Machine Learning | Scikit-learn (RandomForest) |
-| IA Générative | Google Gemini |
-| Modèles | Joblib |
-| Langage | Python 3.9+ |
-
----
-
-## 📂 Structure du projet
-
-```text
-football-streamlit/
-│── app.py
-│── premier-player-23-24.csv
-│── requirements.txt
-│── README.md
+```sh
+python -m venv .venv
+# Activate .venv using your shell's activation command.
+python -m pip install -r requirements.txt
 streamlit run app.py
+```
+
+Copy `.env.example` to `.env` only if enabling Gemini commentary. Supply your own
+key and a model available to your account. The application works without Gemini.
+Published keys from earlier revisions must be revoked; deleting them from the
+current code does not invalidate them or erase earlier commits.
+
+## Tests
+
+```sh
+python -m pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+Tests cover feature leakage, player overlap, training-only preprocessing and
+unseen positions. GitHub Actions runs them for pushes and pull requests.
+
+## Data and reproducibility
+
+`premier-player-23-24.csv` is the dataset already included in the academic project.
+Its original provider and redistribution license are not documented in this repo;
+confirm both before redistributing it elsewhere. The CSV is read as observed
+historical data. A future-performance study would need multiple seasons and a
+temporal split using information available before the predicted period.
+
+The app trains its own pipeline and can export it. Older root `.joblib` artifacts
+are legacy outputs, not the pipeline evaluated here. It does not accept uploaded
+pickled models, because loading an untrusted pickle/joblib can execute code.
+
+Author: [Yassine Ben Hawala](https://portfoliohawala.vercel.app/).
